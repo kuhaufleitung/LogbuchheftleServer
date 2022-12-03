@@ -16,6 +16,10 @@ public class LogbookRestController {
 
     @RequestMapping(value = "/rest/logbook/manualupdate", method = RequestMethod.PUT)
     public void manualupdate() {
+    }
 
+    @RequestMapping(value = "/", method = RequestMethod.GET)
+    public String def() {
+        return "Hello world!";
     }
 }
