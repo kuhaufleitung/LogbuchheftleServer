@@ -60,7 +60,17 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20220320</version>
+            <version>20220924</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsondb</groupId>
+            <artifactId>jsondb-core</artifactId>
+            <version>1.0.106</version>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.12.1</version>
         </dependency>
     </dependencies>
 
