@@ -9,32 +9,43 @@ import java.nio.file.Paths;
 import java.util.Iterator;
 
 public class DatabaseHelper {
-    static void fixFlightKeys() {
-        JSONObject jsonObject = null;
+    static void fixFlightKeys(JSONObject response) {
+        Iterator<String> keys = response.keys();
+        String contentOfLogbook;
         try {
-            jsonObject = new JSONObject(new String(Files.readAllBytes(Paths.get("./logbook.json"))));
-        } catch (IOException e) {
-            System.err.println("Problem with reading File: " + e);
-
-        }
-        assert jsonObject != null;
-        Iterator<String> keys = jsonObject.keys();
-        JSONObject fixedJson = new JSONObject();
-        while (keys.hasNext()) {
-            String key = keys.next();
-            if (!key.equals(jsonObject.getJSONObject(key).get("flid"))) {
-                final JSONObject singleFlight = jsonObject.getJSONObject(key);
-                final String flid = jsonObject.getJSONObject(key).get("flid").toString();
-                fixedJson.put(flid, singleFlight);
+            contentOfLogbook = new String(Files.readAllBytes(Paths.get("./logbook.json")));
+            JSONObject logbookWithNewFlights;
+            if (contentOfLogbook.isEmpty()) {
+                logbookWithNewFlights = new JSONObject();
+            } else {
+                logbookWithNewFlights = new JSONObject(contentOfLogbook);
             }
-        }
-        FileWriter writer;
-        try {
+            while (keys.hasNext()) {
+                String key = keys.next();
+                if (!key.equals(response.getJSONObject(key).get("flid"))) {//remove in prod
+                    final JSONObject singleFlight = response.getJSONObject(key);
+                    final String flid = response.getJSONObject(key).get("flid").toString();
+
+                    //search if insertion is necessary
+                    if (!logbookWithNewFlights.isEmpty()) {
+                        Iterator<String> keysFileIt = logbookWithNewFlights.keys();
+                        while (keysFileIt.hasNext()) {
+                            if (!keysFileIt.next().equals(flid)) {
+                                logbookWithNewFlights.put(flid, singleFlight);
+                                break;
+                            }
+                        }
+                    } else {
+                        logbookWithNewFlights.put(flid, singleFlight);
+                    }
+                }
+            }
+            FileWriter writer;
             writer = new FileWriter("./logbook.json", false);
-            writer.write(fixedJson.toString(4));
+            writer.write(logbookWithNewFlights.toString(4));
             writer.close();
         } catch (IOException e) {
-            System.err.println("Problem with Filewriter: " + e);
+            System.err.println("Problem: " + e);
         }
     }
 }
