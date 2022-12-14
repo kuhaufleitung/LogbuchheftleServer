@@ -5,7 +5,7 @@ Serverapp mit RestAPI als "Logbuchdatenbank" zwischen Vereinsflieger und der log
 # How to build
 
 ## Keypair für JWT Tokens:
-  - Keypair in folgendem Verzeichnis generieren: src/main/java/de/schwapsch/logbuchheftleserver/auth\
+  - Keypair in folgendem Verzeichnis generieren: src/main/resources/certs\
     `openssl genrsa -out keypair.pem 4096`
   - Extrahieren des public-keys:\
     `openssl rsa -in keypair.pem -pubout -out public.pem`
