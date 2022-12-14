@@ -1,4 +1,4 @@
-package de.schwapsch.logbuchheftleserver;
+package de.schwapsch.logbuchheftleserver.Database;
 
 import org.json.JSONObject;
 

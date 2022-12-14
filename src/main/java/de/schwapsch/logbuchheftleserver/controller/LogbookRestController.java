@@ -1,25 +1,26 @@
-package de.schwapsch.logbuchheftleserver;
+package de.schwapsch.logbuchheftleserver.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class LogbookRestController {
-    @RequestMapping(value = "/rest/logbook", method = RequestMethod.GET)
+
+    @GetMapping(value = "/rest/logbook")
     @ResponseBody
     public String logbook() {
         return "";
     } //TODO: update logbook periodically
     //TODO: return json with only: flid, callsign, pilotName, copilotName, dateOfFlight, departureTime, arrivalTime, flightDuration, startType;
 
-    @RequestMapping(value = "/rest/logbook/manualupdate", method = RequestMethod.PUT)
+    @PutMapping(value = "/rest/logbook/manualupdate")
     public void manualupdate() {
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
-    public String def() {
-        return "Hello world!";
+    @GetMapping(value = "/")
+    public String logCheck() {
+        return "Logged in!";
     }
 }
