@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
 
-public class DatabaseHelper {
+public class DatabaseOperations {
     static void fixFlightKeys(JSONObject response) {
         Iterator<String> keys = response.keys();
         String contentOfLogbook;
@@ -27,18 +27,7 @@ public class DatabaseHelper {
                     final JSONObject singleFlight = response.getJSONObject(key);
                     final String flid = response.getJSONObject(key).get("flid").toString();
 
-                    //search if insertion is necessary
-                    if (!logbookWithNewFlights.isEmpty()) {
-                        Iterator<String> keysFileIt = logbookWithNewFlights.keys();
-                        while (keysFileIt.hasNext()) {
-                            if (!keysFileIt.next().equals(flid)) {
-                                logbookWithNewFlights.put(flid, singleFlight);
-                                break;
-                            }
-                        }
-                    } else {
-                        logbookWithNewFlights.put(flid, singleFlight);
-                    }
+                    insertIfNecessary(logbookWithNewFlights, singleFlight, flid);
                 }
             }
             FileWriter writer;
@@ -47,6 +36,20 @@ public class DatabaseHelper {
             writer.close();
         } catch (IOException e) {
             System.err.println("Problem: " + e);
+        }
+    }
+
+    private static void insertIfNecessary(JSONObject logbookWithNewFlights, JSONObject singleFlight, String flid) {
+        if (!logbookWithNewFlights.isEmpty()) {
+            Iterator<String> keysFileIt = logbookWithNewFlights.keys();
+            while (keysFileIt.hasNext()) {
+                if (!keysFileIt.next().equals(flid)) {
+                    logbookWithNewFlights.put(flid, singleFlight);
+                    break;
+                }
+            }
+        } else {
+            logbookWithNewFlights.put(flid, singleFlight);
         }
     }
 
