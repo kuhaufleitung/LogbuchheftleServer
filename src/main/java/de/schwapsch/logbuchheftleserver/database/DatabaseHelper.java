@@ -1,7 +1,8 @@
-package de.schwapsch.logbuchheftleserver.Database;
+package de.schwapsch.logbuchheftleserver.database;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,6 +47,18 @@ public class DatabaseHelper {
             writer.close();
         } catch (IOException e) {
             System.err.println("Problem: " + e);
+        }
+    }
+
+    void refreshJsonData(JSONObject data) {
+        try {
+            File logbookFile = new File(new File(".").getCanonicalPath());
+            if (logbookFile.exists()) {
+                //TODO: update JSON at flid > latest flid
+            }
+        } catch (IOException e) {
+            System.err.println("logbookfile path threw exep: ");
+            e.printStackTrace();
         }
     }
 }
