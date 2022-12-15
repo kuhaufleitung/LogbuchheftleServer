@@ -1,20 +1,25 @@
 package de.schwapsch.logbuchheftleserver.database;
 
+import de.schwapsch.logbuchheftleserver.LogbuchheftleServerApplication;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
 
 public class DatabaseOperations {
+    private static final String pathOfMainJar = URLDecoder.decode(LogbuchheftleServerApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath(), StandardCharsets.UTF_8);
+
     static void fixFlightKeys(JSONObject response) {
         Iterator<String> keys = response.keys();
         String contentOfLogbook;
         try {
-            contentOfLogbook = new String(Files.readAllBytes(Paths.get("./logbook.json")));
+            contentOfLogbook = new String(Files.readAllBytes(Paths.get(pathOfMainJar + "/logbook.json")));
             JSONObject logbookWithNewFlights;
             if (contentOfLogbook.isEmpty()) {
                 logbookWithNewFlights = new JSONObject();
@@ -31,7 +36,7 @@ public class DatabaseOperations {
                 }
             }
             FileWriter writer;
-            writer = new FileWriter("./logbook.json", false);
+            writer = new FileWriter(pathOfMainJar + "/logbook.json", false);
             writer.write(logbookWithNewFlights.toString(4));
             writer.close();
         } catch (IOException e) {

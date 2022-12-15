@@ -34,3 +34,6 @@ public class Credentials {
 ## Port festlegen:
 
 `src/main/resources/application.properties` öffnen und unter `server.port=8080` den gewünschten Port eintragen.
+
+## Server als .jar packen:
+`mvn install`
