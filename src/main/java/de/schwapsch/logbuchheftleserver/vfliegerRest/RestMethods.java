@@ -12,7 +12,7 @@ import java.net.http.HttpResponse;
 
 public class RestMethods implements IRestMethods {
 
-    private String accesstoken = "";
+    private final String accesstoken = "";
     private final String vFliegerBaseURL = "https://www.vereinsflieger.de/interface/rest/";
     HttpClient client;
 
@@ -78,7 +78,7 @@ public class RestMethods implements IRestMethods {
         HttpRequest.Builder requestWithoutMethod = HttpRequest.newBuilder(URI.create(url));
         HttpRequest request;
         HttpResponse<String> response = null;
-                request = switch (method) {
+        request = switch (method) {
             case GET -> requestWithoutMethod.GET().build();
             case PUT -> requestWithoutMethod.PUT(HttpRequest.BodyPublishers.ofString("")).build();
             case POST -> requestWithoutMethod.POST(HttpRequest.BodyPublishers.ofString("")).build();

@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 
 public class URIHelper {
     URI currentURI;
+
     public URIHelper(URI currentURI) {
         this.currentURI = currentURI;
     }
