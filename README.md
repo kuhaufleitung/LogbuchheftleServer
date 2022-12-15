@@ -4,7 +4,7 @@ Serverapp mit RestAPI als "Logbuchdatenbank" zwischen Vereinsflieger und der log
 
 # How to build
 
-## Keypair für JWT Tokens:
+## Keypair für JWT Tokens generieren:
   - Keypair in folgendem Verzeichnis generieren: src/main/resources/certs\
     `openssl genrsa -out keypair.pem 4096`
   - Extrahieren des public-keys:\
@@ -30,3 +30,7 @@ public class Credentials {
     public static final String serverAuthPassword = "sicheresadminpasswort";
 }
 ```
+
+## Port festlegen:
+
+`src/main/resources/application.properties` öffnen und unter `server.port=8080` den gewünschten Port eintragen.
