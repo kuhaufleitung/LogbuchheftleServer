@@ -26,10 +26,7 @@ public class Credentials {
     public static final String passwordInMD5 = "passwort_in_md5";
     // PW to md5 in terminal: echo -n 'meinsicherespasswort' | md5sum
 
-    public static final String serverAdminName = "admin";
-    public static final String serverAdminPassword = "sicheresadminpasswort";
-    public static final String serverUserName = "user";
-    public static final String serverUserPassword = "sicheresuserpasswort";
-
+    public static final String serverAuthUsername = "admin";
+    public static final String serverAuthPassword = "sicheresadminpasswort";
 }
 ```
