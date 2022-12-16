@@ -1,6 +1,8 @@
 package de.schwapsch.logbuchheftleserver.vfliegerRest;
 
 import de.schwapsch.logbuchheftleserver.auth.Credentials;
+import org.json.JSONObject;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.IOException;
@@ -12,24 +14,47 @@ import java.net.http.HttpResponse;
 
 public class RestMethods implements IRestMethods {
 
-    private final String accesstoken = "";
+    private String accesstoken = "";
     private final String vFliegerBaseURL = "https://www.vereinsflieger.de/interface/rest/";
-    HttpClient client;
+    private HttpStatusCode httpStatusCodeOfMyFlights;
+    HttpClient client = HttpClient.newHttpClient();
 
-    @Override
-    public void sessionGET() {
-        String body = null;
-        String specific = vFliegerBaseURL + "auth/accesstoken";
-        String response = genericRequest(specific, RequestMethod.GET);
-        if (response.isEmpty()) {
-            //TODO: error handling
+    public void retrieveData() {
+        if (sessionGET() == HttpStatusCode.valueOf(200)) {
+            if (loginPOST() == HttpStatusCode.valueOf(200)) {
+                myFlightsPOST();
+                if (httpStatusCodeOfMyFlights != HttpStatusCode.valueOf(200)) {
+                    //TODO: logging
+                }
+                if (logoutDEL() != HttpStatusCode.valueOf(200)) {
+                    //TODO: logging
+                }
+            } else {
+                //TODO: logging
+            }
         } else {
-            //TODO: assign accesstoken
+            //TODO: logging
         }
     }
 
     @Override
-    public void loginPOST() {
+    public HttpStatusCode sessionGET() {
+        String specific = vFliegerBaseURL + "auth/accesstoken";
+        String response = genericRequest(specific, RequestMethod.GET);
+        final HttpStatusCode httpStatusCode;
+        if (response.isEmpty()) {
+            httpStatusCode = HttpStatusCode.valueOf(400);
+            //TODO: error handling, change code?
+        } else {
+            JSONObject responseInJson = new JSONObject(response);
+            accesstoken = responseInJson.get("accesstoken").toString();
+            httpStatusCode = HttpStatusCode.valueOf(responseInJson.getInt("httpstatuscode"));
+        }
+        return httpStatusCode;
+    }
+
+    @Override
+    public HttpStatusCode loginPOST() {
         try {
             URIHelper helper = new URIHelper(new URI(vFliegerBaseURL + "auth/signin"));
             String queryURL = helper.appendUri("accesstoken=" + accesstoken)
@@ -38,38 +63,51 @@ public class RestMethods implements IRestMethods {
                     .appendUri("appkey=" + Credentials.APPKEY)
                     .getCurrentURI();
             String response = genericRequest(queryURL, RequestMethod.POST);
-            //TODO: write accesstoken to class
+            JSONObject responseInJson = new JSONObject(response);
+            return HttpStatusCode.valueOf(responseInJson.getInt("httpstatuscode"));
         } catch (URISyntaxException e) {
             System.err.println("MalformedURISyntax!: ");
             e.printStackTrace();
         }
+        return HttpStatusCode.valueOf(400);
     }
 
     @Override
-    public void myFlightsPOST() {
+    public JSONObject myFlightsPOST() {
         try {
             URIHelper helper = new URIHelper(new URI(vFliegerBaseURL + "flight/list/myflights"));
             String queryURL = helper.appendUri("accesstoken=" + accesstoken)
                     .appendUri("username=" + Credentials.username)
                     .appendUri("count=1000")
                     .getCurrentURI();
-            genericRequest(queryURL, RequestMethod.POST);
+            String response = genericRequest(queryURL, RequestMethod.POST);
+            JSONObject responseInJson = new JSONObject(response);
+            httpStatusCodeOfMyFlights = HttpStatusCode.valueOf(responseInJson.getInt("httpstatuscode"));
+            return responseInJson;
         } catch (URISyntaxException e) {
             System.err.println("MalformedURISyntax!: ");
             e.printStackTrace();
         }
+        return new JSONObject();
     }
 
     @Override
-    public void logoutDEL() {
+    public HttpStatusCode logoutDEL() {
         try {
             URIHelper helper = new URIHelper(new URI(vFliegerBaseURL + "flight/list/myflights"));
             String queryURL = helper.appendUri("accesstoken=" + accesstoken).getCurrentURI();
-            genericRequest(queryURL, RequestMethod.DELETE);
+            String response = genericRequest(queryURL, RequestMethod.DELETE);
+            JSONObject responseInJson = new JSONObject(response);
+            return HttpStatusCode.valueOf(responseInJson.getInt("httpstatuscode"));
         } catch (URISyntaxException e) {
             System.err.println("MalformedURISyntax!: ");
             e.printStackTrace();
         }
+        return HttpStatusCode.valueOf(400);
+    }
+
+    public HttpStatusCode getHttpCodeOfMyFlights() {
+        return httpStatusCodeOfMyFlights;
     }
 
     @Override
@@ -94,7 +132,6 @@ public class RestMethods implements IRestMethods {
             System.err.println("Interrupted Exception: ");
             e.printStackTrace();
         }
-        //TODO: log http code
         return response == null ? null : response.body();
     }
 }

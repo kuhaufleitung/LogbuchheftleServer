@@ -1,16 +1,18 @@
 package de.schwapsch.logbuchheftleserver.vfliegerRest;
 
+import org.json.JSONObject;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 public interface IRestMethods {
 
-    void sessionGET();
+    HttpStatusCode sessionGET();
 
-    void loginPOST();
+    HttpStatusCode loginPOST();
 
-    void myFlightsPOST();
+    JSONObject myFlightsPOST();
 
-    void logoutDEL();
+    HttpStatusCode logoutDEL();
 
     String genericRequest(String url, RequestMethod method);
 }
