@@ -15,6 +15,8 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.ser
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -30,6 +32,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class ServerAuthConfig {
 
     private final RsaKeyProperties rsaKeys;
+    PasswordEncoder pwEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
     public ServerAuthConfig(RsaKeyProperties rsaKeys) {
         this.rsaKeys = rsaKeys;
@@ -55,7 +58,7 @@ public class ServerAuthConfig {
         // @formatter:off
         return new InMemoryUserDetailsManager(
                 User.withUsername(Credentials.serverAuthUsername)
-                        .password("{noop}" + Credentials.serverAuthPassword)
+                        .password(pwEncoder.encode(Credentials.serverAuthPassword))
                         .authorities("read")
                         .build()
         );
