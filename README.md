@@ -37,3 +37,12 @@ public class Credentials {
 
 ## Server als .jar packen:
 `mvn install`
+
+
+
+
+# Troubleshooting
+
+## pom.xml Plugins werden nicht erkannt
+
+- File -> Settings -> Build,Execution,Deployment -> Build Tools -> Maven -> Haken bei `Use Plugin Registry`
