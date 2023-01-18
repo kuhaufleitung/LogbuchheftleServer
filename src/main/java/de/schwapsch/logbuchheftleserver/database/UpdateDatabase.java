@@ -11,13 +11,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
 
-public class DatabaseOperations {
+public class UpdateDatabase {
     private final String pathOfMainJar = URLDecoder.decode(LogbuchheftleServerApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath(), StandardCharsets.UTF_8);
     private final JSONObject response;
 //TODO: test all operations
 
-    public DatabaseOperations(String response) {
-        this.response = new JSONObject(response);
+    public UpdateDatabase(JSONObject response) {
+        this.response = response;
 
         stripHttpCodeFromJson();
         JSONObject dataFromDisk = loadFromDisk();
@@ -59,14 +59,14 @@ public class DatabaseOperations {
         boolean foundKey = false;
         while (keys.hasNext() && !foundKey) {
             String key = keys.next();
-            if (key.equals(response.getJSONObject(key).get("httpstatuscode"))) {
+            if (key.contains("httpstatuscode")) {
                 response.remove(key);
                 foundKey = true;
             }
         }
     }
 
-    private JSONObject loadFromDisk() {
+    public JSONObject loadFromDisk() {
         String dataFromDisk;
         try {
             dataFromDisk = new String(Files.readAllBytes(Paths.get(pathOfMainJar + "/logbook.json")));

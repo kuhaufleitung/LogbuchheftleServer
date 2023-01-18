@@ -12,17 +12,18 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-public class RestMethods implements IRestMethods {
+public class VfRestMethods implements IRestMethods {
 
     private String accesstoken = "";
     private final String vFliegerBaseURL = "https://www.vereinsflieger.de/interface/rest/";
     private HttpStatusCode httpStatusCodeOfMyFlights;
     HttpClient client = HttpClient.newHttpClient();
 
-    public void retrieveData() {
+    public JSONObject retrieveData() {
+        JSONObject jsonResponse = null;
         if (sessionGET() == HttpStatusCode.valueOf(200)) {
             if (loginPOST() == HttpStatusCode.valueOf(200)) {
-                myFlightsPOST();
+                jsonResponse = myFlightsPOST();
                 if (httpStatusCodeOfMyFlights != HttpStatusCode.valueOf(200)) {
                     //TODO: logging
                 }
@@ -35,6 +36,7 @@ public class RestMethods implements IRestMethods {
         } else {
             //TODO: logging
         }
+        return jsonResponse;
     }
 
     @Override
@@ -93,8 +95,8 @@ public class RestMethods implements IRestMethods {
 
     @Override
     public HttpStatusCode logoutDEL() {
-        try {
-            URIHelper helper = new URIHelper(new URI(vFliegerBaseURL + "flight/list/myflights"));
+        try {//TODO: wrong URI?
+            URIHelper helper = new URIHelper(new URI(vFliegerBaseURL + "auth/signout"));
             String queryURL = helper.appendUri("accesstoken=" + accesstoken).getCurrentURI();
             String response = genericRequest(queryURL, RequestMethod.DELETE);
             JSONObject responseInJson = new JSONObject(response);

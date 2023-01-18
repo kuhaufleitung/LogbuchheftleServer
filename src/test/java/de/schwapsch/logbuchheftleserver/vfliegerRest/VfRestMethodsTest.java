@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatusCode;
 
-class RestMethodsTest {
+class VfRestMethodsTest {
     @Test void allOperations() {
-        RestMethods methods = new RestMethods();
+        VfRestMethods methods = new VfRestMethods();
         HttpStatusCode sessionCode = methods.sessionGET();
         Assertions.assertEquals(HttpStatusCode.valueOf(200), sessionCode);
         HttpStatusCode loginCode = methods.loginPOST();
