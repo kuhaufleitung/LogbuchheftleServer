@@ -3,6 +3,7 @@ package de.schwapsch.logbuchheftleserver.database;
 import de.schwapsch.logbuchheftleserver.LogbuchheftleServerApplication;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -20,9 +21,21 @@ public class UpdateDatabase {
         this.response = response;
 
         stripHttpCodeFromJson();
+        createFileIfNotExists();
         JSONObject dataFromDisk = loadFromDisk();
         JSONObject logbookWithUpdatedFlights = appendNewFlights(dataFromDisk);
         writeToDisk(logbookWithUpdatedFlights);
+    }
+
+    private void createFileIfNotExists() {
+        File logbookFile = new File(Paths.get(pathOfMainJar + "/logbook.json").toUri());
+        if (!logbookFile.exists()) {
+            try {
+                logbookFile.createNewFile();
+            } catch (IOException e) {
+                //TODO: logging file exists
+            }
+        }
     }
 
 
