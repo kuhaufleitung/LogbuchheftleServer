@@ -1,6 +1,5 @@
 package de.schwapsch.logbuchheftleserver.vfliegerRest;
 
-import de.schwapsch.logbuchheftleserver.auth.Credentials;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -11,10 +10,14 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ResourceBundle;
 
 public class VfRestMethods implements IRestMethods {
-
-    private String accesstoken = "";
+    private final ResourceBundle resource = ResourceBundle.getBundle("credentials");
+    private String accesstoken;
+    private final String appkey = resource.getString("cred.appkey");
+    private final String vfLoginName = resource.getString("cred.vfLogin");
+    private final String vfPwInMd5 = resource.getString("cred.vfPwMd5");
     private final String vFliegerBaseURL = "https://www.vereinsflieger.de/interface/rest/";
     private HttpStatusCode httpStatusCodeOfMyFlights;
     HttpClient client = HttpClient.newHttpClient();
@@ -60,9 +63,9 @@ public class VfRestMethods implements IRestMethods {
         try {
             URIHelper helper = new URIHelper(new URI(vFliegerBaseURL + "auth/signin"));
             String queryURL = helper.appendUri("accesstoken=" + accesstoken)
-                    .appendUri("username=" + Credentials.username)
-                    .appendUri("password=" + Credentials.passwordInMD5)
-                    .appendUri("appkey=" + Credentials.APPKEY)
+                    .appendUri("username=" + vfLoginName)
+                    .appendUri("password=" + vfPwInMd5)
+                    .appendUri("appkey=" + appkey)
                     .getCurrentURI();
             String response = genericRequest(queryURL, RequestMethod.POST);
             JSONObject responseInJson = new JSONObject(response);
@@ -79,7 +82,7 @@ public class VfRestMethods implements IRestMethods {
         try {
             URIHelper helper = new URIHelper(new URI(vFliegerBaseURL + "flight/list/myflights"));
             String queryURL = helper.appendUri("accesstoken=" + accesstoken)
-                    .appendUri("username=" + Credentials.username)
+                    .appendUri("username=" + vfLoginName)
                     .appendUri("count=1000")
                     .getCurrentURI();
             String response = genericRequest(queryURL, RequestMethod.POST);

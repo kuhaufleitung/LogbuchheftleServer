@@ -12,23 +12,21 @@ Serverapp mit RestAPI als "Logbuchdatenbank" zwischen Vereinsflieger und der log
   - Extrahieren des private-keys in topk8 Format:\
     `openssl pkcs8 -topk8 -inform PEM -nocrypt -in keypair.pem -out private.pem`
 
-## Credentials Klasse mit username und password füllen:
+## credentials.properties füllen unter src/main/resources/credentials.properties:
 
 ```
-package de.schwapsch.logbuchheftleserver.auth;
+# personalized app key from vereinsflieger
+cred.appkey=123456abcdef
+# server login name
+cred.serverUser=admin
+# server password
+cred.serverPw=sicheresadminpasswort
+# vereinsflieger login name
+cred.vfLogin=al1337
+# vereinsflieger password als md5 hash
+# PW to md5 in terminal: echo -n 'meinsicherespasswort' | md5sum
+cred.vfPwMd5=acdaa32411eaa123
 
-public class Credentials {
-    private Credentials() {
-    }
-
-    public static final String APPKEY = "hier_appkey_von_vereinsflieger";
-    public static final String username = "vereinsflieger_username";
-    public static final String passwordInMD5 = "passwort_in_md5";
-    // PW to md5 in terminal: echo -n 'meinsicherespasswort' | md5sum
-
-    public static final String serverAuthUsername = "admin";
-    public static final String serverAuthPassword = "sicheresadminpasswort";
-}
 ```
 
 ## Port festlegen:
