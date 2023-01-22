@@ -1,6 +1,8 @@
 package de.schwapsch.logbuchheftleserver.vfliegerRest;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -10,9 +12,12 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Arrays;
+import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
 
 public class VfRestMethods implements IRestMethods {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ResourceBundle resource = ResourceBundle.getBundle("credentials");
     private String accesstoken;
     private final String appkey = resource.getString("cred.appkey");
@@ -20,24 +25,24 @@ public class VfRestMethods implements IRestMethods {
     private final String vfPwInMd5 = resource.getString("cred.vfPwMd5");
     private final String vFliegerBaseURL = "https://www.vereinsflieger.de/interface/rest/";
     private HttpStatusCode httpStatusCodeOfMyFlights;
-    HttpClient client = HttpClient.newHttpClient();
+    final HttpClient client = HttpClient.newHttpClient();
 
     public JSONObject retrieveData() {
         JSONObject jsonResponse = null;
         if (sessionGET() == HttpStatusCode.valueOf(200)) {
             if (loginPOST() == HttpStatusCode.valueOf(200)) {
+                logger.info("Attempting to retrieve flights...");
                 jsonResponse = myFlightsPOST();
-                if (httpStatusCodeOfMyFlights != HttpStatusCode.valueOf(200)) {
-                    //TODO: logging
-                }
                 if (logoutDEL() != HttpStatusCode.valueOf(200)) {
-                    //TODO: logging
+                    logger.warn("Couldn't logout at Vereinsflieger. HTTP code: " + httpStatusCodeOfMyFlights.value());
                 }
             } else {
-                //TODO: logging
+                if (httpStatusCodeOfMyFlights != HttpStatusCode.valueOf(200)) {
+                    logger.warn("Couldn't login at Vereinsflieger. HTTP code: " + httpStatusCodeOfMyFlights.value());
+                }
             }
         } else {
-            //TODO: logging
+            logger.warn("Couldn't create Session at Vereinsflieger. HTTP code: " + httpStatusCodeOfMyFlights.value());
         }
         return jsonResponse;
     }
@@ -49,7 +54,6 @@ public class VfRestMethods implements IRestMethods {
         final HttpStatusCode httpStatusCode;
         if (response.isEmpty()) {
             httpStatusCode = HttpStatusCode.valueOf(400);
-            //TODO: error handling, change code?
         } else {
             JSONObject responseInJson = new JSONObject(response);
             accesstoken = responseInJson.get("accesstoken").toString();
@@ -71,6 +75,7 @@ public class VfRestMethods implements IRestMethods {
             JSONObject responseInJson = new JSONObject(response);
             return HttpStatusCode.valueOf(responseInJson.getInt("httpstatuscode"));
         } catch (URISyntaxException e) {
+            logger.error("Malformed URI Syntax at loginPOST() " + e.getReason());
             System.err.println("MalformedURISyntax!: ");
             e.printStackTrace();
         }
@@ -87,26 +92,33 @@ public class VfRestMethods implements IRestMethods {
                     .getCurrentURI();
             String response = genericRequest(queryURL, RequestMethod.POST);
             JSONObject responseInJson = new JSONObject(response);
+            if (responseInJson.isEmpty()) {
+                throw new NoSuchElementException();
+            }
             httpStatusCodeOfMyFlights = HttpStatusCode.valueOf(responseInJson.getInt("httpstatuscode"));
+            if (httpStatusCodeOfMyFlights != HttpStatusCode.valueOf(200)) {
+                logger.error("Response from Vereinsflieger in myFlightsPOST() is faulty. HTTP code: " + httpStatusCodeOfMyFlights);
+            }
             return responseInJson;
         } catch (URISyntaxException e) {
-            System.err.println("MalformedURISyntax!: ");
-            e.printStackTrace();
+            logger.error("Malformed URI Syntax at myFlightsPost() " + e.getReason());
+        } catch (NoSuchElementException e) {
+            logger.error("Response in myFlightsPOST() is empty ");
+            httpStatusCodeOfMyFlights = HttpStatusCode.valueOf(504);
         }
         return new JSONObject();
     }
 
     @Override
     public HttpStatusCode logoutDEL() {
-        try {//TODO: wrong URI?
+        try {
             URIHelper helper = new URIHelper(new URI(vFliegerBaseURL + "auth/signout"));
             String queryURL = helper.appendUri("accesstoken=" + accesstoken).getCurrentURI();
             String response = genericRequest(queryURL, RequestMethod.DELETE);
             JSONObject responseInJson = new JSONObject(response);
             return HttpStatusCode.valueOf(responseInJson.getInt("httpstatuscode"));
         } catch (URISyntaxException e) {
-            System.err.println("MalformedURISyntax!: ");
-            e.printStackTrace();
+            logger.error("Malformed URI Syntax at logoutDEL() " + e.getReason());
         }
         return HttpStatusCode.valueOf(400);
     }
@@ -117,7 +129,6 @@ public class VfRestMethods implements IRestMethods {
 
     @Override
     public String genericRequest(String url, RequestMethod method) {
-        //TODO: rewrite with HTTPClient
         HttpRequest.Builder requestWithoutMethod = HttpRequest.newBuilder(URI.create(url));
         HttpRequest request;
         HttpResponse<String> response = null;
@@ -131,11 +142,9 @@ public class VfRestMethods implements IRestMethods {
         try {
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException e) {
-            System.err.println("IO Exception: ");
-            e.printStackTrace();
+            logger.error("IO Exception at genericRequest() " + Arrays.toString(e.getStackTrace()));
         } catch (InterruptedException e) {
-            System.err.println("Interrupted Exception: ");
-            e.printStackTrace();
+            logger.error("InterruptedException at myFlightsPost() " + Arrays.toString(e.getStackTrace()));
         }
         return response == null ? null : response.body();
     }
