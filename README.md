@@ -1,5 +1,5 @@
 # LogbuchheftleServer
-Serverapp mit RestAPI als "Logbuchdatenbank" zwischen Vereinsflieger und der logbuchheftle_flutter App.
+Serverapp mit RestAPI als "Logbuchdatenbank" zwischen Vereinsflieger und der `logbuchheftle_flutter` App.
 
 
 # How to build
@@ -36,7 +36,10 @@ cred.vfPwMd5=acdaa32411eaa123
 ## Server als .jar packen:
 `mvn install`
 
-
+# TODOs
+- periodischer Datenabgleich mit VF-Server
+- Data encryption on disk
+- Multi-User Support
 
 
 # Troubleshooting

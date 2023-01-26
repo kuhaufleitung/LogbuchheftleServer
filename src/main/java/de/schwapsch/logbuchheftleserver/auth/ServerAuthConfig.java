@@ -42,7 +42,7 @@ public class ServerAuthConfig {
 
 
     private final RsaKeyProperties rsaKeys;
-    PasswordEncoder pwEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    final PasswordEncoder pwEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
     public ServerAuthConfig(RsaKeyProperties rsaKeys) {
         this.rsaKeys = rsaKeys;

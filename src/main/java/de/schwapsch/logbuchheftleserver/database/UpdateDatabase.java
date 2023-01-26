@@ -2,6 +2,8 @@ package de.schwapsch.logbuchheftleserver.database;
 
 import de.schwapsch.logbuchheftleserver.LogbuchheftleServerApplication;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -15,7 +17,7 @@ import java.util.Iterator;
 public class UpdateDatabase {
     private final String pathOfMainJar = URLDecoder.decode(LogbuchheftleServerApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath(), StandardCharsets.UTF_8);
     private final JSONObject response;
-//TODO: test all operations
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public UpdateDatabase(JSONObject response) {
         this.response = response;
@@ -33,7 +35,8 @@ public class UpdateDatabase {
             try {
                 logbookFile.createNewFile();
             } catch (IOException e) {
-                //TODO: logging file exists
+                logger.error(e+": Couldn't Create File from " + UpdateDatabase.class.getSimpleName());
+                throw new RuntimeException();
             }
         }
     }
@@ -97,8 +100,8 @@ public class UpdateDatabase {
             writer.write(data.toString(4));//TODO: 4 necessary?
             writer.close();
         } catch (IOException e) {
+            logger.error(e+": Couldn't write to disk from " + UpdateDatabase.class.getSimpleName());
             throw new RuntimeException(e);
-            //TODO: write excep hdl
         }
     }
 
