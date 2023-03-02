@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.TreeSet;
 
 public class UpdateDatabase {
     private final String pathOfMainJar = URLDecoder.decode(LogbuchheftleServerApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath(), StandardCharsets.UTF_8);
@@ -26,6 +27,7 @@ public class UpdateDatabase {
         createFileIfNotExists();
         JSONObject dataFromDisk = loadFromDisk();
         JSONObject logbookWithUpdatedFlights = appendNewFlights(dataFromDisk);
+        sortJSON(logbookWithUpdatedFlights);
         writeToDisk(logbookWithUpdatedFlights);
     }
 
@@ -35,7 +37,7 @@ public class UpdateDatabase {
             try {
                 logbookFile.createNewFile();
             } catch (IOException e) {
-                logger.error(e+": Couldn't Create File from " + UpdateDatabase.class.getSimpleName());
+                logger.error(e + ": Couldn't Create File from " + UpdateDatabase.class.getSimpleName());
                 throw new RuntimeException();
             }
         }
@@ -100,9 +102,17 @@ public class UpdateDatabase {
             writer.write(data.toString(4));//TODO: 4 necessary?
             writer.close();
         } catch (IOException e) {
-            logger.error(e+": Couldn't write to disk from " + UpdateDatabase.class.getSimpleName());
+            logger.error(e + ": Couldn't write to disk from " + UpdateDatabase.class.getSimpleName());
             throw new RuntimeException(e);
         }
+    }
+
+    private JSONObject sortJSON(JSONObject data) {
+        TreeSet<SingleFlight> sortedFlightList = new TreeSet<>();
+        for (Iterator<String> it = data.keys(); it.hasNext(); it.next()) {
+            sortedFlightList.add(new SingleFlight(data.getJSONObject(String.valueOf(it)), data.getString("flid")));
+        }
+        return null;
     }
 
     private void createBackup() {
