@@ -24,7 +24,7 @@ public class LogbookRestController {
 
         //update server logbook
         UpdateDatabase database = new UpdateDatabase(response);
-        return database.loadFromDisk().toString();
+        return database.sortJSON(database.loadFromDisk()).toString();
     } //TODO: update logbook periodically
     //TODO: return json with only: flid, callsign, pilotName, copilotName, dateOfFlight, departureTime, arrivalTime, flightDuration, startType;
 

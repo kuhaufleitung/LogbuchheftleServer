@@ -1,6 +1,7 @@
 package de.schwapsch.logbuchheftleserver.database;
 
 import de.schwapsch.logbuchheftleserver.LogbuchheftleServerApplication;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.TreeSet;
 
 public class UpdateDatabase {
     private final String pathOfMainJar = URLDecoder.decode(LogbuchheftleServerApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath(), StandardCharsets.UTF_8);
@@ -29,13 +31,19 @@ public class UpdateDatabase {
         writeToDisk(logbookWithUpdatedFlights);
     }
 
+    // CTOR for testing purposes.
+    public UpdateDatabase(JSONObject data, boolean __) {
+        response = data;
+    }
+
+
     private void createFileIfNotExists() {
         File logbookFile = new File(Paths.get(pathOfMainJar + "/logbook.json").toUri());
         if (!logbookFile.exists()) {
             try {
                 logbookFile.createNewFile();
             } catch (IOException e) {
-                logger.error(e+": Couldn't Create File from " + UpdateDatabase.class.getSimpleName());
+                logger.error(e + ": Couldn't Create File from " + UpdateDatabase.class.getSimpleName());
                 throw new RuntimeException();
             }
         }
@@ -100,9 +108,20 @@ public class UpdateDatabase {
             writer.write(data.toString(4));//TODO: 4 necessary?
             writer.close();
         } catch (IOException e) {
-            logger.error(e+": Couldn't write to disk from " + UpdateDatabase.class.getSimpleName());
+            logger.error(e + ": Couldn't write to disk from " + UpdateDatabase.class.getSimpleName());
             throw new RuntimeException(e);
         }
+    }
+
+    public JSONArray sortJSON(JSONObject data) {
+        TreeSet<SingleFlight> sortedFlightList = new TreeSet<>(new FlightComparator());
+        Iterator<String> keys = data.keys();
+        do {
+            String currentFlight = keys.next();
+            JSONObject jsonOfFlight = data.getJSONObject(currentFlight);
+            sortedFlightList.add(new SingleFlight(jsonOfFlight, jsonOfFlight.getString("flid")));
+        } while (keys.hasNext());
+        return TreeSetSerializer.serialize(sortedFlightList);
     }
 
     private void createBackup() {
