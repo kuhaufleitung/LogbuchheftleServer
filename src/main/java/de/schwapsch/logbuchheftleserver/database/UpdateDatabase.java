@@ -28,7 +28,6 @@ public class UpdateDatabase {
         createFileIfNotExists();
         JSONObject dataFromDisk = loadFromDisk();
         JSONObject logbookWithUpdatedFlights = appendNewFlights(dataFromDisk);
-        sortJSON(logbookWithUpdatedFlights);
         writeToDisk(logbookWithUpdatedFlights);
     }
 
