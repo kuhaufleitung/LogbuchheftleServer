@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.TreeSet;
 
 public class UpdateDatabase {
@@ -29,6 +30,15 @@ public class UpdateDatabase {
         JSONObject logbookWithUpdatedFlights = appendNewFlights(dataFromDisk);
         sortJSON(logbookWithUpdatedFlights);
         writeToDisk(logbookWithUpdatedFlights);
+    }
+
+    // CTOR for testing purposes.
+    public UpdateDatabase(JSONObject data, boolean __) {
+        response = sortJSON(data);
+    }
+
+    public JSONObject getCurrentData() {
+        return response;
     }
 
     private void createFileIfNotExists() {
@@ -108,11 +118,14 @@ public class UpdateDatabase {
     }
 
     private JSONObject sortJSON(JSONObject data) {
-        TreeSet<SingleFlight> sortedFlightList = new TreeSet<>();
-        for (Iterator<String> it = data.keys(); it.hasNext(); it.next()) {
-            sortedFlightList.add(new SingleFlight(data.getJSONObject(String.valueOf(it)), data.getString("flid")));
-        }
-        return null;
+        Set<SingleFlight> sortedFlightList = new TreeSet<>(new FlightComparator());
+        Iterator<String> keys = data.keys();
+        do {
+            String currentFlight = keys.next();
+            JSONObject jsonOfFlight = data.getJSONObject(currentFlight);
+            sortedFlightList.add(new SingleFlight(jsonOfFlight, jsonOfFlight.getString("flid")));
+        } while (keys.hasNext());
+        return new JSONObject(sortedFlightList);
     }
 
     private void createBackup() {
