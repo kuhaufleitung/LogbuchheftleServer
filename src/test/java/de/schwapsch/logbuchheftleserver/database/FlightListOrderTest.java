@@ -1,15 +1,14 @@
 package de.schwapsch.logbuchheftleserver.database;
 
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Map;
 import java.util.Scanner;
-import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -23,19 +22,17 @@ class FlightListOrderTest {
             String contentFromFile = scanner.next();
             JSONObject data = new JSONObject(contentFromFile);
             //sorting happens here
-            UpdateDatabase db = new UpdateDatabase(data, true);
+            UpdateDatabase db = new UpdateDatabase(null, true);
+            JSONArray have = db.sortJSON(data);
 
-            TreeSet<String> want = new TreeSet<>();
-            int wantAmountOfFlights = 5;
+            final String[] want = {"4037734", "4037733", "4037732", "4037731", "4037730"};
+            final int wantAmountOfFlights = 5;
 
-            want.add("4037730");
-            want.add("4037731");
-            want.add("4037732");
-            want.add("4037733");
-            want.add("4037734");
+            for (int i = 0; i < wantAmountOfFlights; i++) {
+                assertEquals(want[i], have.getJSONObject(i).getString("flid"));
+            }
 
-            assertEquals(new JSONObject((Map) want).toString(), db.getCurrentData().toString());
-            assertEquals(wantAmountOfFlights, db.getCurrentData().length());
+            assertEquals(wantAmountOfFlights, have.length());
         } catch (JSONException | FileNotFoundException e) {
             throw new RuntimeException(e);
         }

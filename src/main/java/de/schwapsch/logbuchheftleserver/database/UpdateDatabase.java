@@ -1,6 +1,7 @@
 package de.schwapsch.logbuchheftleserver.database;
 
 import de.schwapsch.logbuchheftleserver.LogbuchheftleServerApplication;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.TreeSet;
 
 public class UpdateDatabase {
@@ -34,12 +34,9 @@ public class UpdateDatabase {
 
     // CTOR for testing purposes.
     public UpdateDatabase(JSONObject data, boolean __) {
-        response = sortJSON(data);
+        response = data;
     }
 
-    public JSONObject getCurrentData() {
-        return response;
-    }
 
     private void createFileIfNotExists() {
         File logbookFile = new File(Paths.get(pathOfMainJar + "/logbook.json").toUri());
@@ -117,15 +114,15 @@ public class UpdateDatabase {
         }
     }
 
-    private JSONObject sortJSON(JSONObject data) {
-        Set<SingleFlight> sortedFlightList = new TreeSet<>(new FlightComparator());
+    public JSONArray sortJSON(JSONObject data) {
+        TreeSet<SingleFlight> sortedFlightList = new TreeSet<>(new FlightComparator());
         Iterator<String> keys = data.keys();
         do {
             String currentFlight = keys.next();
             JSONObject jsonOfFlight = data.getJSONObject(currentFlight);
             sortedFlightList.add(new SingleFlight(jsonOfFlight, jsonOfFlight.getString("flid")));
         } while (keys.hasNext());
-        return new JSONObject(sortedFlightList);
+        return TreeSetSerializer.serialize(sortedFlightList);
     }
 
     private void createBackup() {
