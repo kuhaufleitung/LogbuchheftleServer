@@ -18,6 +18,7 @@ import java.util.TreeSet;
 
 public class UpdateDatabase {
     private final String pathOfMainJar = URLDecoder.decode(LogbuchheftleServerApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath(), StandardCharsets.UTF_8);
+    private final String pathOfJarDirectory = new File(pathOfMainJar).getParent();
     private final JSONObject response;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -38,7 +39,7 @@ public class UpdateDatabase {
 
 
     private void createFileIfNotExists() {
-        File logbookFile = new File(Paths.get(pathOfMainJar + "/logbook.json").toUri());
+        File logbookFile = new File(Paths.get(pathOfJarDirectory + "/logbook.json").toUri());
         if (!logbookFile.exists()) {
             try {
                 logbookFile.createNewFile();
@@ -93,7 +94,7 @@ public class UpdateDatabase {
     public JSONObject loadFromDisk() {
         String dataFromDisk;
         try {
-            dataFromDisk = new String(Files.readAllBytes(Paths.get(pathOfMainJar + "/logbook.json")));
+            dataFromDisk = new String(Files.readAllBytes(Paths.get(pathOfJarDirectory + "/logbook.json")));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -104,7 +105,7 @@ public class UpdateDatabase {
         FileWriter writer;
         try {
             createBackup();
-            writer = new FileWriter(pathOfMainJar + "/logbook.json", false);
+            writer = new FileWriter(pathOfJarDirectory + "/logbook.json", false);
             writer.write(data.toString(4));//TODO: 4 necessary?
             writer.close();
         } catch (IOException e) {
