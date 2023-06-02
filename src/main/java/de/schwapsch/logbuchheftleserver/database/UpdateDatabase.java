@@ -5,20 +5,19 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.system.ApplicationHome;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.TreeSet;
 
 public class UpdateDatabase {
-    private final String pathOfMainJar = URLDecoder.decode(LogbuchheftleServerApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath(), StandardCharsets.UTF_8);
-    private final String pathOfJarDirectory = new File(pathOfMainJar).getParent();
+    private final ApplicationHome home = new ApplicationHome(LogbuchheftleServerApplication.class);
+    private final String pathOfJarDirectory = String.valueOf(home.getDir());
     private final JSONObject response;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -44,7 +43,7 @@ public class UpdateDatabase {
             try {
                 logbookFile.createNewFile();
             } catch (IOException e) {
-                logger.error(e + ": Couldn't Create File from " + UpdateDatabase.class.getSimpleName());
+                logger.error(e + ": Couldn't Create File from " + UpdateDatabase.class.getSimpleName() + " at " + pathOfJarDirectory);
                 throw new RuntimeException();
             }
         }
@@ -96,6 +95,7 @@ public class UpdateDatabase {
         try {
             dataFromDisk = new String(Files.readAllBytes(Paths.get(pathOfJarDirectory + "/logbook.json")));
         } catch (IOException e) {
+            logger.error("Can't load from Disk from " + UpdateDatabase.class.getSimpleName() + " at " + pathOfJarDirectory);
             throw new RuntimeException(e);
         }
         return dataFromDisk.isEmpty() ? new JSONObject() : new JSONObject(dataFromDisk);
