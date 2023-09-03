@@ -5,10 +5,7 @@ import de.schwapsch.logbuchheftleserver.vfliegerRest.VfRestMethods;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class LogbookRestController {
@@ -31,6 +28,13 @@ public class LogbookRestController {
     @PutMapping(value = "/rest/logbook/manualupdate")
     public void manualupdate() {
         logger.info("manualupdate() called");
+    }
+
+    @PutMapping(value = "/rest/logbook/remarks")
+    public String addRemarks(@RequestBody String remarkJson) {
+        logger.info("addRemarks() called");
+        //TODO: parse remark + add to flight + save flight
+        return null;
     }
 
     @GetMapping(value = "/")

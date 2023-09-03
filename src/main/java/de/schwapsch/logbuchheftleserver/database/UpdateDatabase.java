@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.TreeSet;
 
@@ -115,7 +116,7 @@ public class UpdateDatabase {
     }
 
     public JSONArray sortJSON(JSONObject data) {
-        TreeSet<SingleFlight> sortedFlightList = new TreeSet<>(new FlightComparator());
+        TreeSet<SingleFlight> sortedFlightList = new TreeSet<>(Collections.reverseOrder(new FlightComparator()));
         Iterator<String> keys = data.keys();
         do {
             String currentFlight = keys.next();
